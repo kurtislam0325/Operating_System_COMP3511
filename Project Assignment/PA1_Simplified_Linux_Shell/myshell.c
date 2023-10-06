@@ -126,6 +126,16 @@ void process_cmd(char *command_line)
 {
     // Uncomment this line to check the cmdline content
     printf("Debug: The command line is [%s]\n", command_line); 
+
+    // TODO: Feature 1 - Handle the exit command
+    if (strcmp(command_line, "exit") == 0) { 
+        printf(TEMPLATE_MYSHELL_END, getpid());
+        exit(0);
+    }
+
+    
+
+    return;
 }
 
 /* The main function implementation */
