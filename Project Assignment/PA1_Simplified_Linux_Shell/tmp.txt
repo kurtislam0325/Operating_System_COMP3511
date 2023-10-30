@@ -1,0 +1,6 @@
+total 504
+-rw-r--r--@ 1 kurtislam  staff   207K Oct  7 00:29 f2023_pa1_myshell_interactive.pdf
+-rwxr-xr-x  1 kurtislam  staff    34K Oct  8 20:56 myshell
+-rw-------  1 kurtislam  staff     0B Oct  8 20:46 myshell.,c
+-rw-r--r--  1 kurtislam  staff   7.8K Oct  8 20:56 myshell.c
+-rw-------  1 kurtislam  staff     0B Oct  8 20:57 tmp.txt

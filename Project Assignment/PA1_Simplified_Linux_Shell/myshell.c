@@ -122,19 +122,147 @@ void read_tokens(char **argv, char *line, int *numTokens, char *delimiter)
     *numTokens = argc;
 }
 
+void execute_command(char** args, int num_args) {  
+    int fdIn = STDIN_FILENO, fdOut = STDOUT_FILENO;
+    char* tempArgs[MAX_ARGUMENTS_PER_SEGMENT];
+
+    for (int i = 0; i < num_args; i++) 
+        tempArgs[i] = args[i];
+    tempArgs[num_args] = NULL;
+    
+    for (int i = 0; i < num_args; i++) {
+        if (strcmp(tempArgs[i], "<") == 0) {
+            tempArgs[i] = NULL;
+            fdIn = open(tempArgs[i+1], O_CREAT | O_RDONLY, S_IRUSR | S_IWUSR);
+            printf("fdIn: %d\n", fdIn);
+        } 
+        else if (strcmp(tempArgs[i], ">") == 0) {
+            tempArgs[i] = NULL;
+            fdOut = open(tempArgs[i+1], O_CREAT | O_WRONLY, S_IRUSR | S_IWUSR);
+            printf("fdOut: %d\n", fdOut);
+        }    
+    }
+
+    for (int i = 0; i < num_args; i++) 
+        printf("%d: %s\n", i, tempArgs[i]);    
+    
+    dup2(fdIn, STDIN_FILENO);
+    dup2(fdOut, STDOUT_FILENO);
+
+    int status = execvp(tempArgs[0], tempArgs);
+
+    return;
+}
+
+void execute_pipe(char** pipe_segments, int num_segs) {
+    // for (int i = 0; i < num_segs - 1; i++) {
+    //     int pfds[2];
+    //     int num_args;
+    //     char* tempArgs[MAX_ARGUMENTS_PER_SEGMENT];
+
+    //     read_tokens(tempArgs, pipe_segments[i], &num_args, SPACE_CHARS);
+    //     pipe(pfds);
+        
+    //     for (int j = 0; j < num_args; j++) 
+    //         printf("%d: %s\n", j, tempArgs[j]);
+    //     pid_t pid = fork();
+    //     if (pid == 0) { // child process
+    //         printf("Child Process[%d]: %s", i, pipe_segments[i]);
+
+    //         close(STDOUT_FILENO);
+    //         dup(pfds[1]);
+    //         close(pfds[0]);
+
+    //         execvp(tempArgs[0], tempArgs);
+    //         exit(0);
+    //     } else { // parent process
+    //         printf("Parent Process[%d]: %s", i, pipe_segments[i]);
+
+    //         close(STDIN_FILENO);
+    //         dup(pfds[0]);
+    //         close(pfds[1]);
+    //         wait(0);
+
+    //         execvp(tempArgs[0], tempArgs);
+    //     }
+    // }
+    // 
+    // execute_command(args[0], num_args);
+
+    //printf("%s\n", "in pipe case");
+    int num_args;
+    char* tempArgs[MAX_ARGUMENTS_PER_SEGMENT];    
+
+    int in; 
+    int out = dup(STDOUT_FILENO);
+    for (int i = 0; i < num_segs; i++)
+    {
+        int pfds[2];
+        if (i < num_segs - 1) // Generate a pipe except the last segment
+            pipe(pfds);
+
+        pid_t pid = fork();
+        if (pid == 0) { // Child Process
+            if (i) {
+                dup2(in, 0);
+                close(in);
+            }  
+
+            if (i < num_segs - 1) {
+                dup2(pfds[1], 1);
+                close(pfds[1]);
+            } else { // last seg
+                dup2(out, 1);
+                close(out);
+            }
+
+            read_tokens(tempArgs, pipe_segments[i], &num_args, SPACE_CHARS);
+            tempArgs[num_args] = NULL;
+            execvp(tempArgs[0], tempArgs); //new process here
+            
+        } else if (pid != 0 && i > 0) { // Parent Process
+            close(in);
+        }
+
+        close(pfds[1]);
+        in = pfds[0];
+    }
+    close(out);
+    do ; while (wait(0) > 0);    
+}
+
+void signal_callback(int sig) {
+    if (sig == 2) { // Called by Control-C
+        printf(TEMPLATE_MYSHELL_TERMINATE, getpid());
+        fflush(stdout);
+        exit(1);
+    }
+
+    return;
+}
+
 void process_cmd(char *command_line)
 {
     // Uncomment this line to check the cmdline content
-    printf("Debug: The command line is [%s]\n", command_line); 
+    // printf("Debug: The command line is [%s]\n", command_line); 
 
-    // TODO: Feature 1 - Handle the exit command
-    if (strcmp(command_line, "exit") == 0) { 
-        printf(TEMPLATE_MYSHELL_END, getpid());
-        exit(0);
-    }
-
+    int num_tokens;
+    char *pipe_segments[MAX_PIPE_SEGMENTS]; // character array buffer to store the pipe segements
+    char *args[MAX_ARGUMENTS_PER_SEGMENT]; // character array buffer to store the arguments
     
+    // TODO: Handle Command line for Features 3 & 4
+    read_tokens(pipe_segments, command_line, &num_tokens, PIPE_CHAR);
 
+    // for (int i = 0; i < num_tokens; i++) {
+    //     printf("Debug: The pipe segment %d is [%s]\n",i, pipe_segments[i]);
+    // }    
+ 
+    if (num_tokens > 1) { // Feature 4: Multiple Pipe
+        execute_pipe(pipe_segments, num_tokens);
+    } else {  // Feature 3: Redirection
+        read_tokens(args, command_line, &num_tokens, SPACE_CHARS);       
+        execute_command(args, num_tokens);        
+    }
     return;
 }
 
@@ -153,19 +281,28 @@ int main()
 
     printf(TEMPLATE_MYSHELL_START, getpid());
 
+    // TODO: Feature 2 - Overwrite the Ctrl-C signal handler
+    signal(SIGINT, signal_callback); 
+
     // The main event loop
     while (1)
     {
-
         printf("%s> ", prompt);
+
         if (get_cmd_line(command_line) == -1)
             continue; /* empty line handling */
+ 
+        // TODO: Feature 1 - Handle the exit command
+        if (strcmp(command_line, "exit") == 0) { 
+            printf(TEMPLATE_MYSHELL_END, getpid());
+            exit(0);
+        } 
 
         pid_t pid = fork();
         if (pid == 0)
         {
             // the child process handles the command
-            process_cmd(command_line);
+            process_cmd(command_line);             
         }
         else
         {
