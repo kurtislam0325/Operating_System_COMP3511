@@ -1,0 +1,22 @@
+---
+triple:          'arm64-apple-darwin'
+binary-path:     '/Users/kurtislam/Documents/GitHub/Operating_System_COMP3511/Project Assignment/PA2_Simplified_MLFQ/mlfq'
+relocations:
+  - { offsetInCU: 0x26, offset: 0x26, size: 0x8, addend: 0x0, symName: _process_init, symObjAddr: 0x0, symBinAddr: 0x10000307C, symSize: 0x58 }
+  - { offsetInCU: 0x4D, offset: 0x4D, size: 0x8, addend: 0x0, symName: _tq0, symObjAddr: 0x2CD4, symBinAddr: 0x100008000, symSize: 0x0 }
+  - { offsetInCU: 0x69, offset: 0x69, size: 0x8, addend: 0x0, symName: _tq1, symObjAddr: 0x2CD8, symBinAddr: 0x100008004, symSize: 0x0 }
+  - { offsetInCU: 0x7E, offset: 0x7E, size: 0x8, addend: 0x0, symName: _process_table_size, symObjAddr: 0x2CDC, symBinAddr: 0x100008008, symSize: 0x0 }
+  - { offsetInCU: 0x93, offset: 0x93, size: 0x8, addend: 0x0, symName: _process_table, symBinAddr: 0x10000800C, symSize: 0x0 }
+  - { offsetInCU: 0xEE, offset: 0xEE, size: 0x8, addend: 0x0, symName: _process_init, symObjAddr: 0x0, symBinAddr: 0x10000307C, symSize: 0x58 }
+  - { offsetInCU: 0x13C, offset: 0x13C, size: 0x8, addend: 0x0, symName: _process_table_print, symObjAddr: 0x58, symBinAddr: 0x1000030D4, symSize: 0xC0 }
+  - { offsetInCU: 0x17C, offset: 0x17C, size: 0x8, addend: 0x0, symName: _gantt_chart_update, symObjAddr: 0x118, symBinAddr: 0x100003194, symSize: 0xF0 }
+  - { offsetInCU: 0x1D8, offset: 0x1D8, size: 0x8, addend: 0x0, symName: _gantt_chart_print, symObjAddr: 0x208, symBinAddr: 0x100003284, symSize: 0xE4 }
+  - { offsetInCU: 0x226, offset: 0x226, size: 0x8, addend: 0x0, symName: _is_blank, symObjAddr: 0x2EC, symBinAddr: 0x100003368, symSize: 0x84 }
+  - { offsetInCU: 0x25C, offset: 0x25C, size: 0x8, addend: 0x0, symName: _is_skip, symObjAddr: 0x370, symBinAddr: 0x1000033EC, symSize: 0xC0 }
+  - { offsetInCU: 0x292, offset: 0x292, size: 0x8, addend: 0x0, symName: _parse_tokens, symObjAddr: 0x430, symBinAddr: 0x1000034AC, symSize: 0x90 }
+  - { offsetInCU: 0x2FC, offset: 0x2FC, size: 0x8, addend: 0x0, symName: _parse_input, symObjAddr: 0x4C0, symBinAddr: 0x10000353C, symSize: 0x33C }
+  - { offsetInCU: 0x3AE, offset: 0x3AE, size: 0x8, addend: 0x0, symName: _print_parsed_values, symObjAddr: 0x7FC, symBinAddr: 0x100003878, symSize: 0xA0 }
+  - { offsetInCU: 0x3C3, offset: 0x3C3, size: 0x8, addend: 0x0, symName: _queueInsert, symObjAddr: 0x89C, symBinAddr: 0x100003918, symSize: 0x9C }
+  - { offsetInCU: 0x412, offset: 0x412, size: 0x8, addend: 0x0, symName: _mlfq, symObjAddr: 0x938, symBinAddr: 0x1000039B4, symSize: 0x49C }
+  - { offsetInCU: 0x53F, offset: 0x53F, size: 0x8, addend: 0x0, symName: _main, symObjAddr: 0xDD4, symBinAddr: 0x100003E50, symSize: 0x34 }
+...
