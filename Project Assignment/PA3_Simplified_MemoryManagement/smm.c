@@ -45,14 +45,72 @@ void mm_print();
 void fill_characters(char *p, int n, char ch);
 
 // Students are required to implement these functions below
-void *mm_malloc(size_t size)
-{
-    // TODO: Complete mm_malloc here
+void* mm_malloc(size_t size) {
+
+    // Check if size is valid
+    if(size >= 0) {
+
+        struct meta_data *cur = head->next;
+
+        // Traverse list to find first block that is large enough
+        while (cur != head) {
+
+            // Found a free block that fits
+            if (cur->free == 'f' && cur->size >= size) {
+                // If block is too large, split it
+                if (cur->size >= size + meta_data_size) {
+
+                    // Create new block metadata
+                    struct meta_data* new = (struct meta_data*) (cur + meta_data_size + size);
+                    new->size = cur->size - size - meta_data_size;
+                    new->free = 'f';
+
+                    // Add to list
+                    list_add(new, cur, cur->next);
+
+                    // Update current block metadata
+                    cur->size = size;
+
+                }
+                // Mark as occupied and return pointer
+                cur->free = 'o'; 
+                return (void*) (cur + 1);
+
+            }
+            cur = cur->next;
+        }
+
+        // No free block found, request more memory
+        void* ptr = sbrk(size + meta_data_size);
+
+        // Initialize new block metadata
+        struct meta_data* new = ptr;
+        new->size = size;
+        new->free = 'o';
+
+        // Add to front of list
+        list_add_tail(new, head);
+
+        // Return pointer to user area
+        return (void*) (new + 1);
+    }
+
     return NULL;
 }
+
 void mm_free(void *p)
 {
     // TODO: Complete mm_free here
+    if(p != NULL) {
+
+        // Get metadata pointer from user pointer
+        struct meta_data* meta = (struct meta_data*)p - 1;
+
+        meta->free = 'f';
+
+    }
+
+    return;
 }
 
 int main()
@@ -136,9 +194,10 @@ void mm_print()
     while (cur != head)
     {
         printf("Block %02d: [%s] size = %ld bytes\n",
-               i,                                    // block number - counting from bottom
-               (cur->free == 'f') ? "FREE" : "OCCP", // free or occupied
-               cur->size);                           // size, in term of bytes
+            i,                                    // block number - counting from bottom
+            (cur->free == 'f') ? "FREE" : "OCCP", // free or occupied
+            cur->size                             // size, in term of bytes
+        );                           
         i = i + 1;
         cur = cur->next;
     }
